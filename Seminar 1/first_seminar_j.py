@@ -1,4 +1,4 @@
-class Color_translator:
+class seminar_1:
 
     @staticmethod
     def RGB_YUV_translator(value_1, value_2, value_3, mode='RGB_to_YUV'):
@@ -14,6 +14,20 @@ class Color_translator:
             U = round(-0.14713 * R - 0.28886 * G + 0.436 * B, 0)
             V = round(0.615 * R - 0.51499 * G - 0.10001 * B, 0)
             return (Y, U, V)
+    
+    @staticmethod    
+    def serpentine(file_path):
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            
+        serpentine_lines = []
+        for i, line in enumerate(lines):
+            if i % 2 == 1:
+                serpentine_lines.append(line[::-1])
+            else:
+                serpentine_lines.append(line)
+                
+        return ''.join(serpentine_lines)    
 
 def main():
     print("RGB <-> YUV Translator")
@@ -24,7 +38,7 @@ def main():
         r_str, g_str, b_str = rgb_str.strip().split()
         r, g, b = int(r_str), int(g_str), int(b_str)
 
-        translator = Color_translator()
+        translator = seminar_1()
 
         # RGB -> YUV
         y, u, v = translator.RGB_YUV_translator(r, g, b, mode='RGB_to_YUV')
