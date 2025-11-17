@@ -1,3 +1,12 @@
+import os
+import numpy as np
+import cv2
+from PIL import Image
+import ffmpeg
+from os import path, remove
+
+
+
 class seminar_1:
 
     @staticmethod
@@ -15,19 +24,70 @@ class seminar_1:
             V = round(0.615 * R - 0.51499 * G - 0.10001 * B, 0)
             return (Y, U, V)
     
-    @staticmethod    
+    @staticmethod
     def serpentine(file_path):
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-            
-        serpentine_lines = []
-        for i, line in enumerate(lines):
-            if i % 2 == 1:
-                serpentine_lines.append(line[::-1])
+        # Open image and ensure RGB
+        img = Image.open(file_path).convert("RGB")
+        width, height = img.size
+        pixels = img.load()
+
+        serpentine_pixels = []
+
+        for d in range(width + height - 1):
+
+            # even diagonals go up-right
+            if d % 2 == 0:
+                y = min(d, height - 1)
+                x = d - y
+                while y >= 0 and x < width:
+                    serpentine_pixels.append(pixels[x, y])
+                    x += 1
+                    y -= 1
+
+            # odd diagonals go down-left
             else:
-                serpentine_lines.append(line)
-                
-        return ''.join(serpentine_lines)    
+                x = min(d, width - 1)
+                y = d - x
+                while x >= 0 and y < height:
+                    serpentine_pixels.append(pixels[x, y])
+                    x -= 1
+                    y += 1
+
+        return serpentine_pixels
+        
+    @staticmethod
+    def black_and_white(file_path, output_path):
+        try:
+            remove(output_path)
+        except FileNotFoundError:
+            pass
+        
+        
+        os.system('ffmpeg -i ',+file_path,+' -f lavfi -i \
+                color=gray:s=1280x720 -f lavfi -i \
+                color=black:s=1280x720 -f lavfi -i \
+                color=white:s=1280x720 -filter_complex \
+                threshold',+ output_path)
+
+
+        
+    def resize_image(path, new_width, new_height, output_path):
+        try:
+            remove(output_path)
+        except FileNotFoundError:
+            pass
+        (
+            ffmpeg
+            .input(path)
+            .filter('scale', new_width, new_height)
+            .output(output_path)
+            .run()
+        )
+        
+        
+        
+        
+        
 
 def main():
     print("RGB <-> YUV Translator")
