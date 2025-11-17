@@ -19,7 +19,6 @@ def main():
     print("RGB <-> YUV Translator")
     print("----------------------")
 
-    # You could also read from a text file or argv; here we use simple input().
     try:
         rgb_str = input("Enter R G B values (0-255) separated by spaces (e.g. '128 64 32'): ")
         r_str, g_str, b_str = rgb_str.strip().split()
