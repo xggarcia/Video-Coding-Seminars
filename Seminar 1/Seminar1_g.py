@@ -1,30 +1,37 @@
 import ffmpeg
 from os import remove
 import os
+import cv2
 
 try:
     remove("output.jpg")
 except FileNotFoundError:
     pass
 
-# (
-
-#     ffmpeg
-#     .input('image_to_crop.jpg')
-#     .filter('threshold', '128', '255', 'black', 'white')
-#     .output('output.jpg')
-#     .run()
-# )
-
-
-
 
 file_path = "input.jpg"
 output_path = "output.jpg"
 
 
-os.system('ffmpeg -i {file_path} -f lavfi -i \
-        color=gray:s=1280x720 -f lavfi -i \
-        color=black:s=1280x720 -f lavfi -i \
-        color=white:s=1280x720 -filter_complex \
-        threshold {output_path}')
+
+array = ["A","A","A","A","A","B","B","B","C","C","D","F","C","C","C","D","D","C", "C"]
+
+
+output = []
+counter = 1
+for i in range(len(array)):
+    if(i == len(array)-1):
+        output.append(array[i])
+        output.append(counter)
+
+    elif(array[i] == array[i+1]):
+        counter += 1
+        
+    else:
+        output.append(array[i])
+        output.append(counter)
+        counter = 1
+        
+        
+        
+print(output)

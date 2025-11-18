@@ -63,13 +63,48 @@ class seminar_1:
             pass
         
         
-        os.system('ffmpeg -i ',+file_path,+' -f lavfi -i \
-                color=gray:s=1280x720 -f lavfi -i \
-                color=black:s=1280x720 -f lavfi -i \
-                color=white:s=1280x720 -filter_complex \
-                threshold',+ output_path)
+        img = cv2.imread(file_path)
+        height, width, _ = img.shape
+
+        cmd = (
+            f'ffmpeg -i "{file_path}" '
+            f'-f lavfi -i color=gray:s="{width}"x"{height}" '
+            f'-f lavfi -i color=black:s="{width}"x"{height}" '
+            f'-f lavfi -i color=white:s="{width}"x"{height}" '
+            f'-filter_complex "[0:v][1:v][2:v][3:v]threshold" '
+            f'"{output_path}"'
+        )
 
 
+        os.system(cmd)
+
+
+    @staticmethod
+    def runLenghtEncoding(array):
+        output = []
+        counter = 1
+        for i in range(len(array)):
+            if(i == len(array)-1):
+                output.append(array[i])
+                output.append(counter)
+
+            elif(array[i] == array[i+1]):
+                counter += 1
+                
+            else:
+                output.append(array[i])
+                output.append(counter)
+                counter = 1
+
+        
+                
+            
+            
+            
+        
+        
+        
+    
         
     def resize_image(path, new_width, new_height, output_path):
         try:
@@ -114,6 +149,8 @@ def main():
         print("Error: please enter exactly three integer values for R, G and B.")
     except Exception as e:
         print(f"Unexpected error: {e}")
+        
+    translator.black_and_white("input.jpg", "output.jpg")
 
 
 if __name__ == "__main__":
