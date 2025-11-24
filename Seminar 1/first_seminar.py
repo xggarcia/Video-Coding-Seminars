@@ -197,7 +197,6 @@ class DCT_Converter:
         dct_norm = cv2.normalize(dct_log, None, 0, 255, cv2.NORM_MINMAX)
         cv2.imwrite(output_dct, np.uint8(dct_norm))
         cv2.imwrite(output_idct, np.uint8(reconstructed))
-        print(f"✅ DCT processed: {output_dct}")
 
 
 # --- EXERCISE 7: DWT CLASS ---
@@ -234,7 +233,6 @@ class DWT_Converter:
         # IDCT
         rec = pywt.idwt2(coeffs, self.wavelet)
         cv2.imwrite(output_idwt, np.uint8(np.clip(rec, 0, 255)))
-        print(f"✅ DWT processed: {output_dwt}")
 
 
 # --- DEMONSTRATION (Exercise 8 part A) ---
