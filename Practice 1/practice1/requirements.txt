@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+requests
+numpy
+opencv-python-headless
+PyWavelets
+Pillow
+pytest
