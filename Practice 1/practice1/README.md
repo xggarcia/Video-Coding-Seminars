@@ -2,14 +2,14 @@ Markdown
 
 # P1 - API & Dockerization
 
-## 📋 Project Overview
+## Project Overview
 This project implements a multimedia processing API using **FastAPI** and **Docker**. It integrates algorithms from Seminar 1 (Color spaces, RLE, DCT, DWT) and orchestrates a microservice architecture where heavy video processing is delegated to a separate **FFMPEG container**.
 
 This practice is part of the **Video Coding Seminars** repository.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 The solution uses **Docker Compose** to orchestrate two containers:
 
 1.  **Main API (`practice1-api`)**:
@@ -27,13 +27,13 @@ The solution uses **Docker Compose** to orchestrate two containers:
 
 ---
 
-## 🚀 How to Run
+##  How to Run
 Since this project is part of a monorepo, please follow these specific steps to navigate to the correct directory before running the containers.
 
 ### 1. Clone the Repository
 Clone the main repository containing all seminars and practices:
 ```bash
-git clone [https://github.com/](https://github.com/)xggarcia/Video-Coding-Seminars.git
+git clone https://github.com/xggarcia/Video-Coding-Seminars.git
 
 ### 2. Navigate to the Practice Folder
 Important: You must move into the specific subfolder for Practice 1 before running Docker.
