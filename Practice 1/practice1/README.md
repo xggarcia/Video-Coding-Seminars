@@ -75,7 +75,7 @@ POST /resize-image: Resizes an uploaded image to specified dimensions (can be do
 
 POST /max_compresion: Resizes the image to 160 x 120 and puts the image in b/w with just 8 colors. 
 
-3. Video Processing (Container Interaction)
+### 3. Video Processing (Container Interaction)
 POST /convert-video:
 
 Input: JSON body {"video_name": "example.mp4"}
