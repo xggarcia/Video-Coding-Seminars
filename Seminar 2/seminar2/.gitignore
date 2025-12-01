@@ -1,0 +1,21 @@
+# .gitignore
+__pycache__/
+*.pyc
+.env
+.venv
+env/
+venv/
+.idea/
+.vscode/
+# Ignore the actual large video files you tested with
+*.mp4
+*.avi
+*.mkv
+*.jpg
+*.png
+# Ignore temp files created by your code
+temp_*
+bw_*
+dct_*
+dwt_*
+resized_*
