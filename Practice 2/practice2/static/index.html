@@ -1,170 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Processing API - Control Panel</title>
+    <title>Video Processor</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🎬 Video Processing API</h1>
-            <p class="subtitle">Professional Video Encoding & Analysis Suite</p>
-        </header>
-
-        <div class="main-content">
-            <!-- File Upload Section -->
-            <section class="upload-section">
-                <div class="upload-area" id="uploadArea">
-                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                    </svg>
-                    <h3>Drop video file here or click to upload</h3>
-                    <p>Supports MP4, AVI, MKV, WebM and more</p>
-                    <input type="file" id="fileInput" accept="video/*" hidden>
-                </div>
-                <div id="fileInfo" class="file-info hidden"></div>
-            </section>
-
-            <!-- Operations Tabs -->
-            <section class="operations-section">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="codec">Codec Conversion</button>
-                    <button class="tab-btn" data-tab="ladder">Encoding Ladder</button>
-                    <button class="tab-btn" data-tab="analysis">Video Analysis</button>
-                    <button class="tab-btn" data-tab="processing">Processing</button>
-                </div>
-
-                <!-- Codec Conversion Tab -->
-                <div class="tab-content active" id="codec-tab">
-                    <h3>Convert Video Codec</h3>
-                    <p>Transform your video into different codec formats</p>
-                    <div class="codec-grid">
-                        <button class="codec-btn" data-codec="vp8">
-                            <span class="codec-name">VP8</span>
-                            <span class="codec-desc">WebM Container</span>
-                        </button>
-                        <button class="codec-btn" data-codec="vp9">
-                            <span class="codec-name">VP9</span>
-                            <span class="codec-desc">WebM Container</span>
-                        </button>
-                        <button class="codec-btn" data-codec="h265">
-                            <span class="codec-name">H.265</span>
-                            <span class="codec-desc">HEVC / MP4</span>
-                        </button>
-                        <button class="codec-btn" data-codec="av1">
-                            <span class="codec-name">AV1</span>
-                            <span class="codec-desc">Next-gen Codec</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Encoding Ladder Tab -->
-                <div class="tab-content" id="ladder-tab">
-                    <h3>Create Encoding Ladder</h3>
-                    <p>Generate multiple resolutions for adaptive streaming</p>
-                    <div class="ladder-preview">
-                        <div class="ladder-item">📺 1080p - 5000 kbps</div>
-                        <div class="ladder-item">📺 720p - 2800 kbps</div>
-                        <div class="ladder-item">📺 480p - 1400 kbps</div>
-                        <div class="ladder-item">📺 360p - 800 kbps</div>
-                        <div class="ladder-item">📺 240p - 400 kbps</div>
-                    </div>
-                    <label for="ladderCodec">Select Codec:</label>
-                    <select id="ladderCodec" class="codec-select">
-                        <option value="h264">H.264 (MP4)</option>
-                        <option value="h265" selected>H.265 (MP4)</option>
-                        <option value="vp9">VP9 (WebM)</option>
-                        <option value="av1">AV1 (MKV)</option>
-                    </select>
-                    <button class="action-btn primary" id="createLadderBtn">
-                        Generate Encoding Ladder
-                    </button>
-                </div>
-
-                <!-- Analysis Tab -->
-                <div class="tab-content" id="analysis-tab">
-                    <h3>Video Analysis Tools</h3>
-                    <div class="analysis-grid">
-                        <button class="analysis-btn" id="metadataBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span>Media Information</span>
-                        </button>
-                        <button class="analysis-btn" id="motionVectorsBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
-                            </svg>
-                            <span>Motion Vectors</span>
-                        </button>
-                        <button class="analysis-btn" id="yuvHistogramBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <span>YUV Histogram</span>
-                        </button>
-                        <button class="analysis-btn" id="trackCountBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                            </svg>
-                            <span>Track Count</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Processing Tab -->
-                <div class="tab-content" id="processing-tab">
-                    <h3>Video Processing Operations</h3>
-                    
-                    <div class="processing-section">
-                        <h4>📐 Resize Video</h4>
-                        <div class="input-group">
-                            <input type="number" id="resizeWidth" placeholder="Width" min="1">
-                            <input type="number" id="resizeHeight" placeholder="Height" min="1">
-                            <button class="action-btn" id="resizeBtn">Resize</button>
-                        </div>
-                    </div>
-
-                    <div class="processing-section">
-                        <h4>🎨 Chroma Subsampling</h4>
-                        <select id="chromaSelect" class="codec-select">
-                            <option value="4:4:4">4:4:4 (Full chroma)</option>
-                            <option value="4:2:2">4:2:2 (Half horizontal)</option>
-                            <option value="4:2:0" selected>4:2:0 (Half both)</option>
-                            <option value="4:0:0">4:0:0 (Grayscale)</option>
-                        </select>
-                        <button class="action-btn" id="chromaBtn">Apply Chroma</button>
-                    </div>
-
-                    <div class="processing-section">
-                        <h4>📦 BBB Container (Multi-track Audio)</h4>
-                        <input type="number" id="bbbDuration" placeholder="Duration (seconds)" value="20" min="1">
-                        <button class="action-btn" id="bbbBtn">Create BBB Container</button>
-                        <p class="hint">Creates AAC mono, MP3 stereo, and AC3 audio tracks</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection">
-                <h3>Results</h3>
-                <div id="resultsContent"></div>
-            </section>
-
-            <!-- Progress Section -->
-            <div class="progress-overlay hidden" id="progressOverlay">
-                <div class="progress-content">
-                    <div class="spinner"></div>
-                    <p id="progressText">Processing your video...</p>
-                </div>
-            </div>
+        <h1>🎥 Video Processor</h1>
+        
+        <!-- Upload Section -->
+        <div class="section">
+            <h2>Upload Video</h2>
+            <input type="file" id="videoFile" accept="video/*">
+            <p id="fileName"></p>
         </div>
 
-        <footer>
-            <p>© 2025 Video Processing API | Built with FastAPI & FFmpeg</p>
-        </footer>
+        <!-- Codec Conversion -->
+        <div class="section">
+            <h2>Convert Codec</h2>
+            <button onclick="convertCodec('vp8')">VP8</button>
+            <button onclick="convertCodec('vp9')">VP9</button>
+            <button onclick="convertCodec('h265')">H.265</button>
+            <button onclick="convertCodec('av1')">AV1</button>
+        </div>
+
+        <!-- Encoding Ladder -->
+        <div class="section">
+            <h2>Encoding Ladder</h2>
+            <button onclick="createLadder('vp9')">VP9 Ladder</button>
+            <button onclick="createLadder('h264')">H.264 Ladder</button>
+            <button onclick="createLadder('h265')">H.265 Ladder</button>
+        </div>
+
+        <!-- Resize Video -->
+        <div class="section">
+            <h2>Resize Video</h2>
+            <input type="number" id="width" placeholder="Width" value="1280">
+            <input type="number" id="height" placeholder="Height" value="720">
+            <button onclick="resizeVideo()">Resize</button>
+        </div>
+
+        <!-- Chroma Subsampling -->
+        <div class="section">
+            <h2>Chroma Subsampling</h2>
+            <button onclick="changeChroma('4:4:4')">4:4:4</button>
+            <button onclick="changeChroma('4:2:2')">4:2:2</button>
+            <button onclick="changeChroma('4:2:0')">4:2:0</button>
+            <button onclick="changeChroma('4:0:0')">4:0:0</button>
+        </div>
+
+        <!-- Video Analysis -->
+        <div class="section">
+            <h2>Video Analysis</h2>
+            <button onclick="getVideoInfo()">Get Info</button>
+            <button onclick="getHistogram()">YUV Histogram</button>
+            <button onclick="getMotionVectors()">Motion Vectors</button>
+            <button onclick="countTracks()">Count Tracks</button>
+        </div>
+
+        <!-- Image Processing -->
+        <div class="section">
+            <h2>Image Processing</h2>
+            <button onclick="applyDCT()">Apply DCT</button>
+            <button onclick="applyDWT()">Apply DWT</button>
+            <button onclick="serpentineRead()">Serpentine Read</button>
+        </div>
+
+        <!-- Color Conversion -->
+        <div class="section">
+            <h2>Color Conversion</h2>
+            <label>R: <input type="number" id="r" value="255"></label>
+            <label>G: <input type="number" id="g" value="0"></label>
+            <label>B: <input type="number" id="b" value="0"></label>
+            <button onclick="rgbToYuv()">RGB to YUV</button>
+            <button onclick="yuvToRgb()">YUV to RGB</button>
+        </div>
+
+        <!-- Results -->
+        <div id="loading" class="hidden">Processing...</div>
+        <div id="result"></div>
     </div>
 
     <script src="/static/script.js"></script>

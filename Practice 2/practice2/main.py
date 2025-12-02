@@ -26,6 +26,18 @@ def save_upload(upload_file: UploadFile) -> str:
         shutil.copyfileobj(upload_file.file, buffer)
     return path
 
+# Helper to cleanup files and folders
+def cleanup_path(path: str):
+    """Remove file or directory after use"""
+    try:
+        if os.path.exists(path):
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
+    except Exception as e:
+        print(f"Cleanup warning: {e}")
+
 # --- 1. BASIC ENDPOINTS ---
 @app.get("/", response_class=HTMLResponse)
 def read_root():
@@ -90,10 +102,14 @@ def apply_dct(file: UploadFile = File(...)):
     try:
         converter = DCT_Converter()
         converter.apply_dct(input_path, output_vis, output_rec)
-        return FileResponse(output_vis, media_type="image/jpeg", filename="dct_visualization.jpg")
+        response = FileResponse(output_vis, media_type="image/jpeg", filename="dct_visualization.jpg")
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_vis)
+        response.background.add_task(cleanup_path, output_rec)
+        return response
     finally:
-        # Cleanup input, keep output for return (OS cleans temp files eventually or use background tasks)
-        if os.path.exists(input_path): os.remove(input_path)
+        cleanup_path(input_path)
 
 @app.post("/process-dwt")
 def apply_dwt(file: UploadFile = File(...)):
@@ -107,9 +123,14 @@ def apply_dwt(file: UploadFile = File(...)):
     try:
         converter = DWT_Converter()
         converter.apply_dwt(input_path, output_path, dummy_rec)
-        return FileResponse(output_path, media_type="image/jpeg", filename="dwt_visualization.jpg")
+        response = FileResponse(output_path, media_type="image/jpeg", filename="dwt_visualization.jpg")
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_path)
+        response.background.add_task(cleanup_path, dummy_rec)
+        return response
     finally:
-        if os.path.exists(input_path): os.remove(input_path)
+        cleanup_path(input_path)
 
 @app.post("/max-compression")
 def max_compression(file: UploadFile = File(...)):
@@ -121,9 +142,13 @@ def max_compression(file: UploadFile = File(...)):
     
     try:
         FFmpegAuto.max_compression(input_path, output_path)
-        return FileResponse(output_path, media_type="image/jpeg", filename="bw_compression.jpg")
+        response = FileResponse(output_path, media_type="image/jpeg", filename="bw_compression.jpg")
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_path)
+        return response
     finally:
-        if os.path.exists(input_path): os.remove(input_path)
+        cleanup_path(input_path)
         
         
 @app.post("/resize")
@@ -137,12 +162,19 @@ def resize(file: UploadFile = File(...), width: int = ..., height: int = ..., is
     try:
         # FIX: Order must be (Input, Width, Height, Output)
         FFmpegAuto.resize(input_path, width, height, output_path)
-        if (isVideo == True):
-            return FileResponse(output_path, media_type="video/mp4", filename="resized_video.mp4")
+        if isVideo:
+            media_type = "video/mp4"
+            filename = "resized_video.mp4"
         else:
-            return FileResponse(output_path, media_type="image/jpeg", filename="resized_image.jpg")
+            media_type = "image/jpeg"
+            filename = "resized_image.jpg"
+        response = FileResponse(output_path, media_type=media_type, filename=filename)
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_path)
+        return response
     finally:
-        if os.path.exists(input_path): os.remove(input_path)
+        cleanup_path(input_path)
 
 def _safe_remove(path: str):
     try:
@@ -178,32 +210,25 @@ def set_chroma(file: UploadFile = File(...),
         if mime_type is None:
             mime_type = "application/octet-stream"
 
-        # Schedule the uploaded temp file for removal
-        if background_tasks is not None:
-            background_tasks.add_task(_safe_remove, input_path)
-            # Optionally delete the generated file after sending (uncomment if you want auto-clean)
-            # background_tasks.add_task(_safe_remove, actual_output)
-        else:
-            # fallback immediate remove of input (keeps output)
-            _safe_remove(input_path)
-
-        return FileResponse(actual_output, media_type=mime_type, filename=os.path.basename(actual_output))
+        response = FileResponse(actual_output, media_type=mime_type, filename=os.path.basename(actual_output))
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, actual_output)
+        return response
     finally:
-        # keep outputs by default (your pattern), but ensure the temp is removed if background_tasks not used
-        if background_tasks is None and os.path.exists(input_path):
-            _safe_remove(input_path)
+        cleanup_path(input_path)
             
 @app.post("/relevant_information")
 def relevant_information(file: UploadFile = File(...)):
     """
     Upload a file (video or image) and return a single plain-text string
     containing relevant media information extracted via ffprobe (through
-    `DataSerializer.important_information`).
+    `DataSerializer.inportant_information`).
     """
     input_path = save_upload(file)
     try:
         try:
-            info_lines = DataSerializer.important_information(input_path)
+            info_lines = DataSerializer.inportant_information(input_path)
         except FileNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))
         except Exception as e:
@@ -236,10 +261,13 @@ def create_bbb_container(file: UploadFile = File(...), duration: int = 20):
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-        return FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        response = FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, out)
+        return response
     finally:
-        if os.path.exists(input_path):
-            os.remove(input_path)
+        cleanup_path(input_path)
 
 @app.post("/visualize_motion_vectors")
 def visualize_motion_vectors(file: UploadFile = File(...)):
@@ -260,10 +288,13 @@ def visualize_motion_vectors(file: UploadFile = File(...)):
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-        return FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        response = FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, out)
+        return response
     finally:
-        if os.path.exists(input_path):
-            os.remove(input_path)
+        cleanup_path(input_path)
 
 @app.post("/yuv_histogram")
 def yuv_histogram(file: UploadFile = File(...)):
@@ -284,12 +315,15 @@ def yuv_histogram(file: UploadFile = File(...)):
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-        return FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        response = FileResponse(out, media_type="video/mp4", filename=os.path.basename(out))
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, out)
+        return response
     finally:
-        if os.path.exists(input_path):
-            os.remove(input_path)
+        cleanup_path(input_path)
 
-@app.post("/count-tracks")
+@app.post("/count_tracks")
 def count_tracks(file: UploadFile = File(...)):
     """
     Upload an MP4 (or other container) and return:
@@ -355,10 +389,14 @@ def convert_codec(file: UploadFile = File(...), codec: str = Query(..., descript
         else:
             media_type = "video/mp4"
         
-        return FileResponse(output_path, media_type=media_type, filename=os.path.basename(output_path))
+        response = FileResponse(output_path, media_type=media_type, filename=os.path.basename(output_path))
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_path)
+        response.background.add_task(cleanup_path, output_dir)
+        return response
     finally:
-        if os.path.exists(input_path):
-            os.remove(input_path)
+        cleanup_path(input_path)
 
 @app.post("/create_encoding_ladder")
 def create_encoding_ladder(file: UploadFile = File(...), codec: str = Query('h265', description="Target codec: h264, h265, vp9, or av1")):
@@ -384,11 +422,14 @@ def create_encoding_ladder(file: UploadFile = File(...), codec: str = Query('h26
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
         
-        return JSONResponse({
+        response = JSONResponse({
             "message": f"Successfully created encoding ladder with {len(results)} variants",
             "codec": codec,
             "variants": results
         })
+        # Schedule cleanup after response is sent
+        response.background = BackgroundTasks()
+        response.background.add_task(cleanup_path, output_dir)
+        return response
     finally:
-        if os.path.exists(input_path):
-            os.remove(input_path)
+        cleanup_path(input_path)

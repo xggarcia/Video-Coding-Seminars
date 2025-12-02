@@ -1,12 +1,12 @@
 import os
 import subprocess
 import json
+import subprocess
 import numpy as np
 import cv2
 import pywt
 from PIL import Image
 from typing import List, Tuple, Union, Dict, Optional
-from pathlib import Path
 
 class ColorTranslator:
     """
@@ -37,17 +37,8 @@ class DataSerializer:
     """
     
     @staticmethod
-    def important_information(file_path: str) -> List[str]:
+    def inportant_information(file_path: str):
         """Extract important video metadata using ffprobe.
-        
-        Args:
-            file_path: Path to video file
-            
-        Returns:
-            List of formatted metadata strings
-            
-        Raises:
-            FileNotFoundError: If file doesn't exist
         """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
