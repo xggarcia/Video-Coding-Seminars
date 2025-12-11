@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoForge Pro - Advanced Video Processing</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/static/style.css?v=20251203b">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>VideoForge Pro</span>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
+                <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Professional Video Processing</h1>
+        <p>Transform, encode, and analyze videos with cutting-edge technology</p>
+    </section>
+
+    <!-- Main -->
+    <main class="container">
+        <!-- Upload -->
+        <div class="upload-zone" id="dropZone">
+            <input type="file" id="fileInput" accept="video/*,image/*" hidden>
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <h3>Drop video here or click to browse</h3>
+            <p>Supports MP4, AVI, MKV, WebM</p>
+            <button type="button" id="selectFileBtn">Select File</button>
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="codec">Codec</button>
+            <button class="tab" data-tab="ladder">Ladder</button>
+            <button class="tab" data-tab="analysis">Analysis</button>
+            <button class="tab" data-tab="transforms">Transforms</button>
+            <button class="tab" data-tab="advanced">Advanced</button>
+        </div>
+
+        <!-- Panels -->
+        <div class="tab-panel active" id="codec-panel">
+            <h3>Convert Video Codec</h3>
+            <div class="codec-grid">
+                <div class="card" onclick="convertCodec('vp8')"><div class="icon">VP8</div><h4>VP8</h4><p>WebM • Open source</p></div>
+                <div class="card" onclick="convertCodec('vp9')"><div class="icon">VP9</div><h4>VP9</h4><p>WebM • YouTube</p></div>
+                <div class="card" onclick="convertCodec('h265')"><div class="icon">H.265</div><h4>H.265/HEVC</h4><p>MP4 • 4K ready</p></div>
+                <div class="card" onclick="convertCodec('av1')"><div class="icon">AV1</div><h4>AV1</h4><p>MKV • Next-gen</p></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="ladder-panel">
+            <h3>Create Encoding Ladder</h3>
+            <div class="options">
+                <div class="card" onclick="createLadder('vp9')"><h4>VP9 Ladder</h4><p>1080p → 240p</p></div>
+                <div class="card" onclick="createLadder('h264')"><h4>H.264 Ladder</h4><p>1080p → 240p</p></div>
+                <div class="card" onclick="createLadder('h265')"><h4>H.265 Ladder</h4><p>1080p → 240p</p></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="analysis-panel">
+            <h3>Video Analysis</h3>
+            <div class="tools">
+                <button onclick="getVideoInfo()">📊 Video Info</button>
+                <button onclick="generateHistogram()">📈 YUV Histogram</button>
+                <button onclick="visualizeMotionVectors()">🎯 Motion Vectors</button>
+                <button onclick="countTracks()">🎵 Count Tracks</button>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="transforms-panel">
+            <h3>Image Transforms</h3>
+            <div class="transforms">
+                <div class="card" onclick="applyDCT()"><div class="icon">DCT</div><h4>Discrete Cosine</h4><p>JPEG algorithm</p></div>
+                <div class="card" onclick="applyDWT()"><div class="icon">DWT</div><h4>Wavelet Transform</h4><p>JPEG2000</p></div>
+                <div class="card" onclick="applySerpentine()"><div class="icon">ZIG</div><h4>Serpentine Read</h4><p>Zigzag scan</p></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="advanced-panel">
+            <h3>Advanced Operations</h3>
+            <div class="section">
+                <h4>Resize</h4>
+                <input type="number" id="resizeWidth" placeholder="Width" value="1280">
+                <input type="number" id="resizeHeight" placeholder="Height" value="720">
+                <button onclick="resizeVideo()">Resize</button>
+            </div>
+            <div class="section">
+                <h4>Chroma</h4>
+                <button onclick="setChroma('4:4:4')">4:4:4</button>
+                <button onclick="setChroma('4:2:2')">4:2:2</button>
+                <button onclick="setChroma('4:2:0')">4:2:0</button>
+                <button onclick="setChroma('4:0:0')">4:0:0</button>
+            </div>
+            <div class="section">
+                <h4>Color Convert</h4>
+                <input type="number" id="rgbR" placeholder="R" value="255">
+                <input type="number" id="rgbG" placeholder="G" value="0">
+                <input type="number" id="rgbB" placeholder="B" value="0">
+                <button onclick="rgbToYuv()">RGB→YUV</button>
+                <button onclick="yuvToRgb()">YUV→RGB</button>
+            </div>
+            <div class="section">
+                <h4>YUV to RGB</h4>
+                <input type="number" id="yuvY" placeholder="Y" value="255">
+                <input type="number" id="yuvU" placeholder="U" value="0">
+                <input type="number" id="yuvV" placeholder="V" value="0">
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="statusText">Processing...</p>
+            <div class="progress"><div class="progress-bar" id="progress"></div></div>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="results-header">
+                <h3>Results</h3>
+                <button onclick="closeResults()">×</button>
+            </div>
+            <div id="resultsContent"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 VideoForge Pro • Powered by FFmpeg & FastAPI</p>
+    </footer>
+
+    <script src="/static/script.js?v=20251203"></script>
+</body>
+</html>

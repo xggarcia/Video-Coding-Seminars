@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Processor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Video Processor</h1>
+        
+        <!-- Upload Section -->
+        <div class="section">
+            <h2>Upload Video</h2>
+            <input type="file" id="videoFile" accept="video/*">
+            <p id="fileName"></p>
+        </div>
+
+        <!-- Codec Conversion -->
+        <div class="section">
+            <h2>Convert Codec</h2>
+            <button onclick="convertCodec('vp8')">VP8</button>
+            <button onclick="convertCodec('vp9')">VP9</button>
+            <button onclick="convertCodec('h265')">H.265</button>
+            <button onclick="convertCodec('av1')">AV1</button>
+        </div>
+
+        <!-- Encoding Ladder -->
+        <div class="section">
+            <h2>Encoding Ladder</h2>
+            <button onclick="createLadder('vp9')">VP9 Ladder</button>
+            <button onclick="createLadder('h264')">H.264 Ladder</button>
+            <button onclick="createLadder('h265')">H.265 Ladder</button>
+        </div>
+
+        <!-- Resize Video -->
+        <div class="section">
+            <h2>Resize Video</h2>
+            <input type="number" id="width" placeholder="Width" value="1280">
+            <input type="number" id="height" placeholder="Height" value="720">
+            <button onclick="resizeVideo()">Resize</button>
+        </div>
+
+        <!-- Chroma Subsampling -->
+        <div class="section">
+            <h2>Chroma Subsampling</h2>
+            <button onclick="changeChroma('4:4:4')">4:4:4</button>
+            <button onclick="changeChroma('4:2:2')">4:2:2</button>
+            <button onclick="changeChroma('4:2:0')">4:2:0</button>
+            <button onclick="changeChroma('4:0:0')">4:0:0</button>
+        </div>
+
+        <!-- Video Analysis -->
+        <div class="section">
+            <h2>Video Analysis</h2>
+            <button onclick="getVideoInfo()">Get Info</button>
+            <button onclick="getHistogram()">YUV Histogram</button>
+            <button onclick="getMotionVectors()">Motion Vectors</button>
+            <button onclick="countTracks()">Count Tracks</button>
+        </div>
+
+        <!-- Image Processing -->
+        <div class="section">
+            <h2>Image Processing</h2>
+            <button onclick="applyDCT()">Apply DCT</button>
+            <button onclick="applyDWT()">Apply DWT</button>
+            <button onclick="serpentineRead()">Serpentine Read</button>
+        </div>
+
+        <!-- Color Conversion -->
+        <div class="section">
+            <h2>Color Conversion</h2>
+            <label>R: <input type="number" id="r" value="255"></label>
+            <label>G: <input type="number" id="g" value="0"></label>
+            <label>B: <input type="number" id="b" value="0"></label>
+            <button onclick="rgbToYuv()">RGB to YUV</button>
+            <button onclick="yuvToRgb()">YUV to RGB</button>
+        </div>
+
+        <!-- Results -->
+        <div id="loading" class="hidden">Processing...</div>
+        <div id="result"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
