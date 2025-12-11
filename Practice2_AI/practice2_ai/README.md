@@ -53,7 +53,7 @@ docker compose up --build
 ### 4. Access the API
 Once the logs show the service is running:
 
-You can go to the following url in your browser: http://localhost:8000/docs
+You can go to the following url in your browser: http://localhost:8000
 
 
 #-------------------------------------------------------------------------------

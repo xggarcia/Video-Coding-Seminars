@@ -28,7 +28,6 @@ def save_upload(upload_file: UploadFile) -> str:
 
 # Helper to cleanup files and folders
 def cleanup_path(path: str):
-    """Remove file or directory after use"""
     try:
         if os.path.exists(path):
             if os.path.isdir(path):
@@ -65,9 +64,7 @@ def encode_list(payload: ListData):
 # --- 2. DOCKER INTERACTION (The Assignment Requirement) ---
 @app.post("/convert-video")
 def convert_video(video_name: str):
-    """
-    Triggers the separate FFMPEG Docker Container.
-    """
+
     ffmpeg_url = "http://ffmpeg-service:5000/convert"
     try:
         response = requests.post(ffmpeg_url, json={"filename": video_name})
@@ -79,9 +76,7 @@ def convert_video(video_name: str):
 
 @app.post("/serpentine-read")
 def serpentine_scan(file: UploadFile = File(...)):
-    """
-    Exercise 4: Uploads an image and returns pixels in serpentine order.
-    """
+
     input_path = save_upload(file)
     try:
         pixels = DataSerializer.serpentine_read(input_path)
@@ -92,9 +87,7 @@ def serpentine_scan(file: UploadFile = File(...)):
 
 @app.post("/process-dct")
 def apply_dct(file: UploadFile = File(...)):
-    """
-    Exercise 6: Uploads image, applies DCT, returns the visualized Transform.
-    """
+
     input_path = save_upload(file)
     output_vis = f"dct_{file.filename}"
     output_rec = f"rec_{file.filename}"
@@ -113,9 +106,7 @@ def apply_dct(file: UploadFile = File(...)):
 
 @app.post("/process-dwt")
 def apply_dwt(file: UploadFile = File(...)):
-    """
-    Exercise 7: Uploads image, applies DWT (Haar), returns visualization.
-    """
+
     input_path = save_upload(file)
     output_path = f"dwt_{file.filename}"
     dummy_rec = "dummy_rec.png"
@@ -134,9 +125,7 @@ def apply_dwt(file: UploadFile = File(...)):
 
 @app.post("/max-compression")
 def max_compression(file: UploadFile = File(...)):
-    """
-    Exercise 5: Hard compression to Black and White.
-    """
+
     input_path = save_upload(file)
     output_path = f"bw_{file.filename}"
     
@@ -153,9 +142,7 @@ def max_compression(file: UploadFile = File(...)):
         
 @app.post("/resize")
 def resize(file: UploadFile = File(...), width: int = ..., height: int = ..., isVideo: bool = ...):
-    """
-    Exercise 3: Resizes an image to specific dimensions.
-    """
+
     input_path = save_upload(file)
     output_path = f"resized_{file.filename}"  # Changed name to be clear
     
@@ -187,10 +174,7 @@ def _safe_remove(path: str):
 def set_chroma(file: UploadFile = File(...),
                subsampling: str = Query('4:2:0', description="Chroma subsampling: '4:2:0','4:2:2','4:4:4','4:0:0'"),
                background_tasks: BackgroundTasks = None):
-    """
-    Upload a photo or video and convert its chroma subsampling (pixel format).
-    Returns the converted file.
-    """
+
     input_path = save_upload(file)
     safe_sub = subsampling.replace(':', '')
     # start with original filename, converter may change extension (e.g., to .mkv)
@@ -220,11 +204,7 @@ def set_chroma(file: UploadFile = File(...),
             
 @app.post("/relevant_information")
 def relevant_information(file: UploadFile = File(...)):
-    """
-    Upload a file (video or image) and return a single plain-text string
-    containing relevant media information extracted via ffprobe (through
-    `DataSerializer.inportant_information`).
-    """
+
     input_path = save_upload(file)
     try:
         try:
@@ -243,12 +223,7 @@ def relevant_information(file: UploadFile = File(...)):
 
 @app.post("/create_bbb_container")
 def create_bbb_container(file: UploadFile = File(...), duration: int = 20):
-    """
-    Create a 20-second BBB container package.
-    - trims to `duration` seconds (default 20)
-    - exports AAC mono, MP3 stereo (low bitrate), AC3
-    - packages everything into a single .mp4 and returns it
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"bbb_{base_name}_{duration}s.mp4"
@@ -271,11 +246,7 @@ def create_bbb_container(file: UploadFile = File(...), duration: int = 20):
 
 @app.post("/visualize_motion_vectors")
 def visualize_motion_vectors(file: UploadFile = File(...)):
-    """
-    Visualize macroblocks and motion vectors in a video.
-    Uploads a video and returns it with motion vector overlays showing
-    the prediction directions and macroblock boundaries.
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"mv_{base_name}.mp4"
@@ -298,11 +269,7 @@ def visualize_motion_vectors(file: UploadFile = File(...)):
 
 @app.post("/yuv_histogram")
 def yuv_histogram(file: UploadFile = File(...)):
-    """
-    Create a video with YUV histogram overlay.
-    Uploads a video and returns it with Y (luma), U (Cb), and V (Cr)
-    component histograms overlaid showing the distribution of color values.
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"yuv_hist_{base_name}.mp4"
@@ -325,12 +292,7 @@ def yuv_histogram(file: UploadFile = File(...)):
 
 @app.post("/count_tracks")
 def count_tracks(file: UploadFile = File(...)):
-    """
-    Upload an MP4 (or other container) and return:
-    - a human-readable message stating the number of tracks
-    - total_track count
-    - full stream details
-    """
+
     input_path = save_upload(file)
     try:
         try:
@@ -356,16 +318,7 @@ def count_tracks(file: UploadFile = File(...)):
 
 @app.post("/convert_codec")
 def convert_codec(file: UploadFile = File(...), codec: str = Query(..., description="Target codec: vp8, vp9, h265, or av1")):
-    """
-    Convert input video to specified codec (VP8, VP9, H.265, or AV1).
-    Returns the converted video file.
-    
-    Supported codecs:
-    - vp8: VP8 codec in WebM container
-    - vp9: VP9 codec in WebM container
-    - h265: H.265/HEVC codec in MP4 container
-    - av1: AV1 codec in MKV container
-    """
+
     input_path = save_upload(file)
     output_dir = "converted_videos"
     
@@ -400,15 +353,7 @@ def convert_codec(file: UploadFile = File(...), codec: str = Query(..., descript
 
 @app.post("/create_encoding_ladder")
 def create_encoding_ladder(file: UploadFile = File(...), codec: str = Query('h265', description="Target codec: h264, h265, vp9, or av1")):
-    """
-    Create an encoding ladder with multiple resolutions and bitrates.
-    Generates variants for adaptive streaming (1080p, 720p, 480p, 360p, 240p).
-    
-    The encoding ladder internally reuses the resize() and encoding methods
-    to avoid code duplication.
-    
-    Returns JSON with details of all generated variants.
-    """
+
     input_path = save_upload(file)
     output_dir = "encoding_ladder"
     
