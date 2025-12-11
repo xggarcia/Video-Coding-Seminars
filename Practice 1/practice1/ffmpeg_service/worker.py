@@ -1,4 +1,3 @@
-# ffmpeg_service/worker.py
 from flask import Flask, request, jsonify
 import subprocess
 import os
@@ -10,8 +9,6 @@ def convert():
     data = request.json
     filename = data.get('filename', 'input.mp4')
     
-    # Simulate conversion command (we use a dummy command for safety if file is missing)
-    # In a real scenario, this runs: ffmpeg -i input.mp4 output.avi
     cmd = f"ffmpeg -version" 
     
     try:

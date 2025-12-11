@@ -9,8 +9,6 @@ import mimetypes
 from fastapi import Query, BackgroundTasks
 import subprocess
 
-
-# Import your logic
 from s2_logic import ColorTranslator, DataSerializer, FFmpegAuto, DCT_Converter, DWT_Converter
 
 app = FastAPI(title="Multimedia API", description="API for Seminar 1 & Dockerization")
@@ -40,12 +38,10 @@ def encode_list(payload: ListData):
     encoded = DataSerializer.run_length_encoding(payload.data)
     return {"original": payload.data, "encoded": encoded}
 
-# --- 2. DOCKER INTERACTION (The Assignment Requirement) ---
+# --- 2. DOCKER INTERACTION  ---
 @app.post("/convert-video")
 def convert_video(video_name: str):
-    """
-    Triggers the separate FFMPEG Docker Container.
-    """
+
     ffmpeg_url = "http://ffmpeg-service:5000/convert"
     try:
         response = requests.post(ffmpeg_url, json={"filename": video_name})
@@ -57,9 +53,7 @@ def convert_video(video_name: str):
 
 @app.post("/serpentine-read")
 def serpentine_scan(file: UploadFile = File(...)):
-    """
-    Exercise 4: Uploads an image and returns pixels in serpentine order.
-    """
+
     input_path = save_upload(file)
     try:
         pixels = DataSerializer.serpentine_read(input_path)
@@ -70,9 +64,7 @@ def serpentine_scan(file: UploadFile = File(...)):
 
 @app.post("/process-dct")
 def apply_dct(file: UploadFile = File(...)):
-    """
-    Exercise 6: Uploads image, applies DCT, returns the visualized Transform.
-    """
+
     input_path = save_upload(file)
     output_vis = f"dct_{file.filename}"
     output_rec = f"rec_{file.filename}"
@@ -82,14 +74,12 @@ def apply_dct(file: UploadFile = File(...)):
         converter.apply_dct(input_path, output_vis, output_rec)
         return FileResponse(output_vis, media_type="image/jpeg", filename="dct_visualization.jpg")
     finally:
-        # Cleanup input, keep output for return (OS cleans temp files eventually or use background tasks)
+        # Cleanup input, keep output for return 
         if os.path.exists(input_path): os.remove(input_path)
 
 @app.post("/process-dwt")
 def apply_dwt(file: UploadFile = File(...)):
-    """
-    Exercise 7: Uploads image, applies DWT (Haar), returns visualization.
-    """
+ 
     input_path = save_upload(file)
     output_path = f"dwt_{file.filename}"
     dummy_rec = "dummy_rec.png"
@@ -103,9 +93,7 @@ def apply_dwt(file: UploadFile = File(...)):
 
 @app.post("/max-compression")
 def max_compression(file: UploadFile = File(...)):
-    """
-    Exercise 5: Hard compression to Black and White.
-    """
+
     input_path = save_upload(file)
     output_path = f"bw_{file.filename}"
     
@@ -118,14 +106,11 @@ def max_compression(file: UploadFile = File(...)):
         
 @app.post("/resize")
 def resize(file: UploadFile = File(...), width: int = ..., height: int = ..., isVideo: bool = ...):
-    """
-    Exercise 3: Resizes an image to specific dimensions.
-    """
+
     input_path = save_upload(file)
-    output_path = f"resized_{file.filename}"  # Changed name to be clear
+    output_path = f"resized_{file.filename}"  
     
     try:
-        # FIX: Order must be (Input, Width, Height, Output)
         FFmpegAuto.resize(input_path, width, height, output_path)
         if (isVideo == True):
             return FileResponse(output_path, media_type="video/mp4", filename="resized_video.mp4")
@@ -145,13 +130,9 @@ def _safe_remove(path: str):
 def set_chroma(file: UploadFile = File(...),
                subsampling: str = Query('4:2:0', description="Chroma subsampling: '4:2:0','4:2:2','4:4:4','4:0:0'"),
                background_tasks: BackgroundTasks = None):
-    """
-    Upload a photo or video and convert its chroma subsampling (pixel format).
-    Returns the converted file.
-    """
+
     input_path = save_upload(file)
     safe_sub = subsampling.replace(':', '')
-    # start with original filename, converter may change extension (e.g., to .mkv)
     output_path = f"chroma_{safe_sub}_{file.filename}"
 
     try:
@@ -171,25 +152,18 @@ def set_chroma(file: UploadFile = File(...),
         # Schedule the uploaded temp file for removal
         if background_tasks is not None:
             background_tasks.add_task(_safe_remove, input_path)
-            # Optionally delete the generated file after sending (uncomment if you want auto-clean)
-            # background_tasks.add_task(_safe_remove, actual_output)
         else:
             # fallback immediate remove of input (keeps output)
             _safe_remove(input_path)
 
         return FileResponse(actual_output, media_type=mime_type, filename=os.path.basename(actual_output))
     finally:
-        # keep outputs by default (your pattern), but ensure the temp is removed if background_tasks not used
         if background_tasks is None and os.path.exists(input_path):
             _safe_remove(input_path)
             
 @app.post("/relevant_information")
 def relevant_information(file: UploadFile = File(...)):
-    """
-    Upload a file (video or image) and return a single plain-text string
-    containing relevant media information extracted via ffprobe (through
-    `DataSerializer.inportant_information`).
-    """
+
     input_path = save_upload(file)
     try:
         try:
@@ -208,12 +182,7 @@ def relevant_information(file: UploadFile = File(...)):
 
 @app.post("/create_bbb_container")
 def create_bbb_container(file: UploadFile = File(...), duration: int = 20):
-    """
-    Create a 20-second BBB container package.
-    - trims to `duration` seconds (default 20)
-    - exports AAC mono, MP3 stereo (low bitrate), AC3
-    - packages everything into a single .mp4 and returns it
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"bbb_{base_name}_{duration}s.mp4"
@@ -233,11 +202,7 @@ def create_bbb_container(file: UploadFile = File(...), duration: int = 20):
 
 @app.post("/visualize_motion_vectors")
 def visualize_motion_vectors(file: UploadFile = File(...)):
-    """
-    Visualize macroblocks and motion vectors in a video.
-    Uploads a video and returns it with motion vector overlays showing
-    the prediction directions and macroblock boundaries.
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"mv_{base_name}.mp4"
@@ -257,11 +222,7 @@ def visualize_motion_vectors(file: UploadFile = File(...)):
 
 @app.post("/yuv_histogram")
 def yuv_histogram(file: UploadFile = File(...)):
-    """
-    Create a video with YUV histogram overlay.
-    Uploads a video and returns it with Y (luma), U (Cb), and V (Cr)
-    component histograms overlaid showing the distribution of color values.
-    """
+
     input_path = save_upload(file)
     base_name = os.path.splitext(file.filename)[0]
     output_path = f"yuv_hist_{base_name}.mp4"
@@ -281,12 +242,7 @@ def yuv_histogram(file: UploadFile = File(...)):
 
 @app.post("/count-tracks")
 def count_tracks(file: UploadFile = File(...)):
-    """
-    Upload an MP4 (or other container) and return:
-    - a human-readable message stating the number of tracks
-    - total_track count
-    - full stream details
-    """
+
     input_path = save_upload(file)
     try:
         try:
@@ -296,7 +252,6 @@ def count_tracks(file: UploadFile = File(...)):
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-        # Human-friendly summary message
         msg = f"The file contains {num} track{'s' if num != 1 else ''}."
 
         return JSONResponse({

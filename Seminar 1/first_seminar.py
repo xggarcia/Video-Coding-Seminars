@@ -8,14 +8,10 @@ from os import path, remove
 
 # --- EXERCISE 2: COLOR TRANSLATION ---
 class ColorTranslator:
-    """
-    Handles mathematical color space conversions.
-    """
+
     @staticmethod
     def rgb_to_yuv(v1, v2, v3, mode='RGB_to_YUV'):
-        """
-        Translates between RGB and YUV values.
-        """
+
         if mode == 'YUV_to_RGB':
             Y, U, V = v1, v2, v3
             # Integer conversion with clamping to 0-255
@@ -33,15 +29,9 @@ class ColorTranslator:
 
 # --- EXERCISE 4 & 5: DATA ENCODING/TRAVERSAL ---
 class DataSerializer:
-    """
-    Handles pixel reading patterns and basic compression algorithms (RLE).
-    """
+
     @staticmethod
     def serpentine_read(file_path):
-        """
-        Exercise 4: Reads image pixels in a zigzag (serpentine) pattern.
-        This simulates the way JPEG reads 8x8 blocks.
-        """
         if not path.exists(file_path):
             print(f"File not found: {file_path}")
             return []
@@ -71,10 +61,7 @@ class DataSerializer:
 
     @staticmethod
     def run_length_encoding(array):
-        """
-        Exercise 5 (Part 2): RLE Encoding.
-        Input: [A, A, B] -> Output: [A, 2, B, 1]
-        """
+
         if not array: return []
         
         output = []
@@ -95,14 +82,10 @@ class DataSerializer:
 
 # --- EXERCISE 3 & 5: FFMPEG AUTOMATION ---
 class FFmpegAuto:
-    """
-    Wrapper for FFmpeg subprocess calls to automate resizing and compression.
-    """
+
     @staticmethod
     def resize_image(input_path, new_width, new_height, output_path):
-        """
-        Exercise 3: Resize image using ffmpeg.
-        """
+
         cmd = [
             'ffmpeg', '-y', '-i', input_path,
             '-vf', f"scale={new_width}:{new_height}",
@@ -114,9 +97,7 @@ class FFmpegAuto:
 
     @staticmethod
     def to_black_and_white(file_path, output_path):
-        """
-        Exercise 5 (Part 1): Hard compression to 1-bit Black and White.
-        """
+
         if path.exists(output_path): remove(output_path)
         
         # Pixels > 127 become 255 (White), others become 0 (Black)
@@ -130,9 +111,7 @@ class FFmpegAuto:
 
     @staticmethod
     def quantize_grayscale(input_path, output_path, num_colors=8):
-        """
-        Exercise 5 (Part 1 continued): Grayscale quantization with specific color palette.
-        """
+
         if path.exists(output_path): remove(output_path)
             
         filter_cmd = (
@@ -158,9 +137,7 @@ class FFmpegAuto:
 
 # --- EXERCISE 6: DCT CLASS ---
 class DCT_Converter:
-    """
-    Handles Discrete Cosine Transform operations (JPEG core).
-    """
+
     def __init__(self, block_size=8):
         self.block_size = block_size
 
@@ -201,9 +178,7 @@ class DCT_Converter:
 
 # --- EXERCISE 7: DWT CLASS ---
 class DWT_Converter:
-    """
-    Handles Discrete Wavelet Transform operations (JPEG2000 core).
-    """
+
     def __init__(self, wavelet='haar'):
         self.wavelet = wavelet
 

@@ -9,14 +9,10 @@ from typing import List, Tuple, Union, Dict
 import subprocess
 
 class ColorTranslator:
-    """
-    Handles mathematical color space conversions.
-    """
+
     @staticmethod
     def rgb_to_yuv(v1: int, v2: int, v3: int, mode: str = 'RGB_to_YUV') -> Tuple[float, float, float]:
-        """
-        Translates between RGB and YUV values.
-        """
+ 
         if mode == 'YUV_to_RGB':
             Y, U, V = v1, v2, v3
             # Integer conversion with clamping to 0-255
@@ -32,9 +28,7 @@ class ColorTranslator:
             return (Y, U, V)
 
 class DataSerializer:
-    """
-    Handles pixel reading patterns and basic compression algorithms (RLE).
-    """
+
     
     @staticmethod
     def inportant_information(file_path: str) -> List[str]:
@@ -98,9 +92,7 @@ class DataSerializer:
     
     @staticmethod
     def serpentine_read(file_path: str) -> List[Tuple[int, int, int]]:
-        """
-        Reads image pixels in a zigzag (serpentine) pattern.
-        """
+
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -129,9 +121,7 @@ class DataSerializer:
 
     @staticmethod
     def run_length_encoding(array: List) -> List:
-        """
-        RLE Encoding. Input: [A, A, B] -> Output: [A, 2, B, 1]
-        """
+  
         if not array: return []
         
         output = []
@@ -150,9 +140,7 @@ class DataSerializer:
         return output
 
 class FFmpegAuto:
-    """
-    Wrapper for FFmpeg subprocess calls.
-    """
+
     @staticmethod
     def resize(input_path: str, new_width: int, new_height: int, output_path: str):
         # Ensure dimensions are integers
@@ -202,11 +190,7 @@ class FFmpegAuto:
 
     @staticmethod
     def set_chroma_subsampling(input_path: str, output_path: str, subsampling: str = '4:2:0') -> str:
-        """
-        Convert chroma subsampling / pixel format for images or videos.
-        Returns the actual output_path used (may change extension for certain codecs).
-        Raises ValueError on bad subsampling, RuntimeError if ffmpeg fails.
-        """
+
         mapping = {
             '4:4:4': 'yuv444p',
             '4:2:2': 'yuv422p',
@@ -271,16 +255,7 @@ class FFmpegAuto:
 
     @staticmethod
     def create_bbb_container(input_path: str, output_path: str, duration: int = 20) -> str:
-        """
-        Create a new MP4 container from `input_path` trimmed to `duration` seconds.
-        - Cuts video to 20 seconds (or specified duration)
-        - Exports AAC mono track
-        - Exports MP3 stereo with lower bitrate
-        - Exports AC3 codec track
-        - Packages everything into a single .mp4
-        
-        Returns the path to the final MP4 output.
-        """
+
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"File not found: {input_path}")
 
@@ -294,41 +269,18 @@ class FFmpegAuto:
         probe_result = subprocess.run(probe_cmd, capture_output=True, text=True)
         has_audio = probe_result.stdout.strip() == 'audio'
 
-        if has_audio:
-            # Input has audio: map ONLY the first video stream (exclude mjpeg thumbnails) and create audio tracks
-            cmd = [
-                'ffmpeg', '-y', '-i', input_path, '-t', str(duration),
-                # Map only the first video stream (0:v:0) to exclude mjpeg/thumbnail streams
-                '-map', '0:v:0',
-                # Audio track 1: AAC mono
-                '-map', '0:a:0', '-c:a:0', 'aac', '-ac:a:0', '1', '-b:a:0', '128k',
-                # Audio track 2: MP3 stereo lower bitrate (MP4 supports MP3)
-                '-map', '0:a:0', '-c:a:1', 'libmp3lame', '-ac:a:1', '2', '-b:a:1', '96k',
-                # Audio track 3: AC3 stereo (MP4 supports AC3 via mov_text)
-                '-map', '0:a:0', '-c:a:2', 'ac3', '-ac:a:2', '2', '-b:a:2', '192k',
-                '-c:v', 'copy',
-                # Use movflags to ensure MP4 compatibility
-                '-movflags', '+faststart',
-                final_output
-            ]
-        else:
-            # No audio: generate silent audio tracks
-            cmd = [
-                'ffmpeg', '-y', '-i', input_path, '-f', 'lavfi', '-i', f'anullsrc=r=44100:cl=mono', 
-                '-t', str(duration),
-                # Map only first video stream to exclude thumbnails
-                '-map', '0:v:0',
-                # Audio track 1: AAC mono (silent)
-                '-map', '1:a', '-c:a:0', 'aac', '-ac:a:0', '1', '-b:a:0', '128k',
-                # Audio track 2: MP3 stereo (silent)
-                '-map', '1:a', '-c:a:1', 'libmp3lame', '-ac:a:1', '2', '-b:a:1', '96k',
-                # Audio track 3: AC3 stereo (silent)
-                '-map', '1:a', '-c:a:2', 'ac3', '-ac:a:2', '2', '-b:a:2', '192k',
-                '-c:v', 'copy',
-                '-movflags', '+faststart',
-                '-shortest',
-                final_output
-            ]
+        
+        cmd = [
+            'ffmpeg', '-y', '-i', input_path, '-t', str(duration),
+            '-map', '0:v:0',
+            '-map', '0:a:0', '-c:a:0', 'aac', '-ac:a:0', '1', '-b:a:0', '128k',
+            '-map', '0:a:0', '-c:a:1', 'libmp3lame', '-ac:a:1', '2', '-b:a:1', '96k',
+            '-map', '0:a:0', '-c:a:2', 'ac3', '-ac:a:2', '2', '-b:a:2', '192k',
+            '-c:v', 'copy',
+            '-movflags', '+faststart',
+            final_output
+        ]
+
 
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
@@ -338,12 +290,7 @@ class FFmpegAuto:
 
     @staticmethod
     def visualize_motion_vectors(input_path: str, output_path: str) -> str:
-        """
-        Visualize macroblocks and motion vectors in a video.
-        Uses ffmpeg codecview filter to display motion vectors overlaid on the video.
-        
-        Returns the path to the output video with motion vector visualization.
-        """
+
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"File not found: {input_path}")
 
@@ -357,15 +304,11 @@ class FFmpegAuto:
         # mv=pf+bf shows both
         cmd = [
             'ffmpeg', '-y',
-            # Decode with motion vector extraction flags
             '-flags2', '+export_mvs',
             '-i', input_path,
-            # Apply codecview filter to visualize motion vectors
             '-vf', 'codecview=mv=pf+bf',
-            # Re-encode to ensure visualization is embedded
             '-c:v', 'libx264',
             '-crf', '18',
-            # Copy audio if present
             '-c:a', 'copy',
             final_output
         ]
@@ -378,13 +321,7 @@ class FFmpegAuto:
 
     @staticmethod
     def yuv_histogram(input_path: str, output_path: str) -> str:
-        """
-        Create a video with YUV histogram overlay.
-        Shows the distribution of Y (luma), U (Cb), and V (Cr) components
-        as histograms overlaid on the video.
-        
-        Returns the path to the output video with YUV histogram visualization.
-        """
+
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"File not found: {input_path}")
 
@@ -397,14 +334,10 @@ class FFmpegAuto:
         cmd = [
             'ffmpeg', '-y',
             '-i', input_path,
-            # Map only the first video stream (exclude thumbnails)
             '-map', '0:v:0',
-            # Apply histogram filter for YUV components (components=7 = Y+U+V)
             '-vf', 'split=2[a][b],[b]histogram=level_height=200:display_mode=overlay:levels_mode=linear:components=7[hh],[a][hh]overlay',
-            # Re-encode
             '-c:v', 'libx264',
             '-crf', '18',
-            # Copy audio if present
             '-map', '0:a?',
             '-c:a', 'copy',
             final_output
@@ -418,13 +351,7 @@ class FFmpegAuto:
 
     @staticmethod
     def probe_tracks(file_path: str) -> Tuple[int, List[Dict]]:
-        """
-        Uses ffprobe to inspect an MP4/multi-stream container and returns:
-            (number_of_streams, [stream_info_dicts...])
 
-        stream_info_dicts include: index, codec_type, codec_name, codec_long_name,
-        width, height, sample_rate, channels, duration (when available).
-        """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -470,9 +397,7 @@ class FFmpegAuto:
     
 
 class DCT_Converter:
-    """
-    Handles Discrete Cosine Transform operations.
-    """
+
     def __init__(self, block_size: int = 8):
         self.block_size = block_size
 
@@ -507,9 +432,7 @@ class DCT_Converter:
         cv2.imwrite(output_idct, np.uint8(reconstructed))
 
 class DWT_Converter:
-    """
-    Handles Discrete Wavelet Transform operations.
-    """
+
     def __init__(self, wavelet: str = 'haar'):
         self.wavelet = wavelet
 

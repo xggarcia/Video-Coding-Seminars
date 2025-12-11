@@ -6,7 +6,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List
 
-# Import your logic
 from s1_logic import ColorTranslator, DataSerializer, FFmpegAuto, DCT_Converter, DWT_Converter
 
 app = FastAPI(title="Multimedia API", description="API for Seminar 1 & Dockerization")
@@ -39,9 +38,7 @@ def encode_list(payload: ListData):
 # --- 2. DOCKER INTERACTION (The Assignment Requirement) ---
 @app.post("/convert-video")
 def convert_video(video_name: str):
-    """
-    Triggers the separate FFMPEG Docker Container.
-    """
+
     ffmpeg_url = "http://ffmpeg-service:5000/convert"
     try:
         response = requests.post(ffmpeg_url, json={"filename": video_name})
@@ -53,9 +50,7 @@ def convert_video(video_name: str):
 
 @app.post("/serpentine-read")
 def serpentine_scan(file: UploadFile = File(...)):
-    """
-    Exercise 4: Uploads an image and returns pixels in serpentine order.
-    """
+
     input_path = save_upload(file)
     try:
         pixels = DataSerializer.serpentine_read(input_path)
@@ -66,9 +61,7 @@ def serpentine_scan(file: UploadFile = File(...)):
 
 @app.post("/process-dct")
 def apply_dct(file: UploadFile = File(...)):
-    """
-    Exercise 6: Uploads image, applies DCT, returns the visualized Transform.
-    """
+
     input_path = save_upload(file)
     output_vis = f"dct_{file.filename}"
     output_rec = f"rec_{file.filename}"
@@ -78,14 +71,12 @@ def apply_dct(file: UploadFile = File(...)):
         converter.apply_dct(input_path, output_vis, output_rec)
         return FileResponse(output_vis, media_type="image/jpeg", filename="dct_visualization.jpg")
     finally:
-        # Cleanup input, keep output for return (OS cleans temp files eventually or use background tasks)
+        # Cleanup input, keep output for return 
         if os.path.exists(input_path): os.remove(input_path)
 
 @app.post("/process-dwt")
 def apply_dwt(file: UploadFile = File(...)):
-    """
-    Exercise 7: Uploads image, applies DWT (Haar), returns visualization.
-    """
+
     input_path = save_upload(file)
     output_path = f"dwt_{file.filename}"
     dummy_rec = "dummy_rec.png"
@@ -99,9 +90,7 @@ def apply_dwt(file: UploadFile = File(...)):
 
 @app.post("/max-compression")
 def max_compression(file: UploadFile = File(...)):
-    """
-    Exercise 5: Hard compression to Black and White.
-    """
+
     input_path = save_upload(file)
     output_path = f"bw_{file.filename}"
     
@@ -114,9 +103,7 @@ def max_compression(file: UploadFile = File(...)):
         
 @app.post("/resize-image")
 def resize_image(file: UploadFile = File(...), width: int = ..., height: int = ...):
-    """
-    Exercise 3: Resizes an image to specific dimensions.
-    """
+
     input_path = save_upload(file)
     output_path = f"resized_{file.filename}"  # Changed name to be clear
     

@@ -1,10 +1,8 @@
-# Dockerfile (Main API)
 FROM python:3.9-slim
 
 WORKDIR /app
 
 # Install system dependencies
-# FIX: Changed 'libgl1-mesa-glx' to 'libgl1' for newer Debian versions
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libgl1 \

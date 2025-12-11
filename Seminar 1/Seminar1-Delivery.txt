@@ -2,7 +2,7 @@
 
 Members of the group: 
     Guillem García Sansa - U213901 - 266776
-    Jofre Geli de Fuenmayor - u213898 - ?????
+    Jofre Geli de Fuenmayor - u213898 - 266970
 
 The Seminar 1 is uploaded in our github repository together with all the other activities related with this subject.
 The seminar is located at the folder ../Seminar 1

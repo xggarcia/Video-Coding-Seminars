@@ -7,14 +7,10 @@ from PIL import Image
 from typing import List, Tuple, Union
 
 class ColorTranslator:
-    """
-    Handles mathematical color space conversions.
-    """
+
     @staticmethod
     def rgb_to_yuv(v1: int, v2: int, v3: int, mode: str = 'RGB_to_YUV') -> Tuple[float, float, float]:
-        """
-        Translates between RGB and YUV values.
-        """
+
         if mode == 'YUV_to_RGB':
             Y, U, V = v1, v2, v3
             # Integer conversion with clamping to 0-255
@@ -30,14 +26,10 @@ class ColorTranslator:
             return (Y, U, V)
 
 class DataSerializer:
-    """
-    Handles pixel reading patterns and basic compression algorithms (RLE).
-    """
+
     @staticmethod
     def serpentine_read(file_path: str) -> List[Tuple[int, int, int]]:
-        """
-        Reads image pixels in a zigzag (serpentine) pattern.
-        """
+
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -66,9 +58,7 @@ class DataSerializer:
 
     @staticmethod
     def run_length_encoding(array: List) -> List:
-        """
-        RLE Encoding. Input: [A, A, B] -> Output: [A, 2, B, 1]
-        """
+
         if not array: return []
         
         output = []
@@ -87,9 +77,7 @@ class DataSerializer:
         return output
 
 class FFmpegAuto:
-    """
-    Wrapper for FFmpeg subprocess calls.
-    """
+
     @staticmethod
     def resize_image(input_path: str, new_width: int, new_height: int, output_path: str):
         # Ensure dimensions are integers
@@ -137,9 +125,7 @@ class FFmpegAuto:
                 os.remove(temp_resized)
 
 class DCT_Converter:
-    """
-    Handles Discrete Cosine Transform operations.
-    """
+
     def __init__(self, block_size: int = 8):
         self.block_size = block_size
 
@@ -174,9 +160,7 @@ class DCT_Converter:
         cv2.imwrite(output_idct, np.uint8(reconstructed))
 
 class DWT_Converter:
-    """
-    Handles Discrete Wavelet Transform operations.
-    """
+
     def __init__(self, wavelet: str = 'haar'):
         self.wavelet = wavelet
 
