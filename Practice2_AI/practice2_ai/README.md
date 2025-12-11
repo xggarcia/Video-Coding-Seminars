@@ -40,7 +40,7 @@ Important: You must move into the specific subfolder for Practice 2 before runni
 You can use the following line of code in cmd:
 
 ```bash
-cd "Video-Coding-Seminars/Practice 2/practice2"
+cd "Video-Coding-Seminars/Practice2_AI/practice2_ai"
 ```
 
 ### 3. Start the Application
